@@ -36,7 +36,6 @@ public class NbpEurToUsdScraper implements Scraper<String> {
     @Override
     public Mono<String> scrape() {
         log.info("Scraping NBP currency rates");
-
         return webClient.get()
                 .retrieve()
                 .bodyToMono(String.class)

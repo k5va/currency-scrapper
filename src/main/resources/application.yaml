@@ -1,3 +1,7 @@
-spring.application.name: currencyscraper
+spring:
+  application.name: currencyscraper
+
+server:
+  port: 0
 
 app.currency.nbp.url: https://api.nbp.pl/api/exchangerates/tables/a?format=json
