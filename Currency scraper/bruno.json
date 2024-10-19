@@ -1,0 +1,9 @@
+{
+  "version": "1",
+  "name": "Currency scraper",
+  "type": "collection",
+  "ignore": [
+    "node_modules",
+    ".git"
+  ]
+}
