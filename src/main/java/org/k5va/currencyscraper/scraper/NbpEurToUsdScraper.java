@@ -1,6 +1,7 @@
 package org.k5va.currencyscraper.scraper;
 
 import lombok.extern.slf4j.Slf4j;
+import org.k5va.currencyscraper.error.ScraperException;
 import org.k5va.currencyscraper.parser.NbpEurUsdParser;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;
@@ -37,13 +38,15 @@ public class NbpEurToUsdScraper implements Scraper<String> {
         log.info("Scraping NBP currency rates");
 
         return webClient.get()
-            .retrieve()
-            .bodyToMono(String.class)
-            .map(parser::parse)
-            .log()
-            .map(currencyDto -> currencyDto.eur().divide(currencyDto.usd(), RoundingMode.HALF_UP))
-            .log()
-            .map(result -> result.setScale(RESULT_SCALE, RoundingMode.HALF_UP).toPlainString() )
-            .timeout(Duration.ofSeconds(TIMEOUT_SECONDS));
+                .retrieve()
+                .bodyToMono(String.class)
+                .map(parser::parse)
+                .log()
+                .map(currencyDto -> currencyDto.eur().divide(currencyDto.usd(), RoundingMode.HALF_UP))
+                .log()
+                .map(result -> result.setScale(RESULT_SCALE, RoundingMode.HALF_UP).toPlainString())
+                .timeout(Duration.ofSeconds(TIMEOUT_SECONDS))
+                .switchIfEmpty(Mono.error(new ScraperException("Empty response from NBP")))
+                .onErrorMap(Exception.class, ScraperException::new);
     }
 }

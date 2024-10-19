@@ -27,9 +27,10 @@ public class NbpEurUsdParser implements Parser<Currency> {
             var rates = objectMapper.readTree(currencyJson).get(0).get("rates");
 
             for (var rateNode: rates) {
-                if (rateNode.get("code").asText().equals("USD")) {
+                var code = rateNode.get("code").asText();
+                if (code.equals("USD")) {
                     usdRate = new BigDecimal(rateNode.get("mid").asText());
-                } else if (rateNode.get("code").asText().equals("EUR")) {
+                } else if (code.equals("EUR")) {
                     eurRate = new BigDecimal(rateNode.get("mid").asText());
                 }
             }
