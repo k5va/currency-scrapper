@@ -2,6 +2,10 @@ spring:
   application.name: currencyscraper
 
 server:
-  port: 0
+  port: 8080
 
-app.currency.nbp.url: https://api.nbp.pl/api/exchangerates/tables/a?format=json
+logging.level.reactor.netty.http.client: DEBUG
+
+app.currency:
+  nbp.url: https://api.nbp.pl/api/exchangerates/tables/a?format=json
+  nbs.url: https://moduli.erstebank.rs//aspx/kursna_lista/datum_slr.aspx

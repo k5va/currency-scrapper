@@ -11,6 +11,7 @@ import reactor.core.publisher.Mono;
 
 import java.math.RoundingMode;
 import java.time.Duration;
+import java.time.LocalDate;
 
 @Component
 @Slf4j
@@ -35,6 +36,11 @@ public class NbpEurToUsdScraper implements Scraper<String> {
 
     @Override
     public Mono<String> scrape() {
+        return scrape(LocalDate.now());
+    }
+
+    @Override
+    public Mono<String> scrape(LocalDate date) {
         log.info("Scraping NBP currency rates");
         return webClient.get()
                 .retrieve()

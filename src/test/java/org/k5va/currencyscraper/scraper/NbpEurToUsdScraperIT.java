@@ -44,7 +44,7 @@ class NbpEurToUsdScraperIT {
     void scrapeShouldReturnCorrectValue() throws IOException {
         // given
         var jsonCurrencyData = Files.readString(
-                ResourceUtils.getFile("classpath:data/currency.json").toPath());
+                ResourceUtils.getFile("classpath:data/nbp.json").toPath());
 
         mockNbpServer.enqueue(new MockResponse()
                 .setBody(jsonCurrencyData)
