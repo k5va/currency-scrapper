@@ -1,7 +1,9 @@
 package org.k5va.currencyscraper.scraper;
 
 import lombok.extern.slf4j.Slf4j;
+import org.k5va.currencyscraper.entity.Currency;
 import org.k5va.currencyscraper.error.ScraperException;
+import org.k5va.currencyscraper.dto.CurrencyDto;
 import org.k5va.currencyscraper.parser.NbpEurUsdParser;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;
@@ -15,7 +17,7 @@ import java.time.LocalDate;
 
 @Component
 @Slf4j
-public class NbpEurToUsdScraper implements Scraper<String> {
+public class NbpEurToUsdScraper implements Scraper<CurrencyDto> {
 
     public static final int TIMEOUT_SECONDS = 5;
     public static final int RESULT_SCALE = 2;
@@ -35,21 +37,20 @@ public class NbpEurToUsdScraper implements Scraper<String> {
     }
 
     @Override
-    public Mono<String> scrape() {
+    public Mono<CurrencyDto> scrape() {
         return scrape(LocalDate.now());
     }
 
     @Override
-    public Mono<String> scrape(LocalDate date) {
+    public Mono<CurrencyDto> scrape(LocalDate date) {
         log.info("Scraping NBP currency rates");
         return webClient.get()
                 .retrieve()
                 .bodyToMono(String.class)
                 .map(parser::parse)
-                .log()
-                .map(currencyDto -> currencyDto.eur().divide(currencyDto.usd(), RoundingMode.HALF_UP))
-                .log()
-                .map(result -> result.setScale(RESULT_SCALE, RoundingMode.HALF_UP).toPlainString())
+                .map(currencies -> currencies.get("EUR").divide(currencies.get("USD"), RoundingMode.HALF_UP))
+                .map(result -> result.setScale(RESULT_SCALE, RoundingMode.HALF_UP))
+                .map(value -> new CurrencyDto(value, date, Currency.Type.NBP_EUR_USD.name()))
                 .timeout(Duration.ofSeconds(TIMEOUT_SECONDS))
                 .switchIfEmpty(Mono.error(new ScraperException("Empty response from NBP")))
                 .onErrorMap(Exception.class, ScraperException::new);

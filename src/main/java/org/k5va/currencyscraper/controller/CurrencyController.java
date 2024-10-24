@@ -2,12 +2,12 @@ package org.k5va.currencyscraper.controller;
 
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.k5va.currencyscraper.dto.CurrencyDto;
 import org.k5va.currencyscraper.service.CurrencyService;
 import org.springframework.format.annotation.DateTimeFormat;
 import org.springframework.http.MediaType;
-import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
-import reactor.core.publisher.Mono;
+import reactor.core.publisher.Flux;
 
 import java.time.LocalDate;
 import java.util.Optional;
@@ -21,18 +21,17 @@ public class CurrencyController {
     private final CurrencyService currencyService;
 
     @GetMapping(path = "/nbp")
-    public Mono<ResponseEntity<String>> getNbpEurUsdRate() {
+    public Flux<CurrencyDto> getNbpEurUsdRate() {
         log.info("getNbpEurUsdRate");
-        return currencyService.getNbpEurUsdRate().map(ResponseEntity::ok);
+        return currencyService.getNbpEurUsdRate();
     }
 
     @GetMapping(path = "/nbs")
-    public Mono<ResponseEntity<String>> getNbsMiddleRate(
+    public Flux<CurrencyDto> getNbsMiddleRate(
             @RequestParam @DateTimeFormat(pattern = "dd.MM.yyyy") LocalDate date) {
 
         log.info("getNbsMiddleRate: {}", date);
         return currencyService
-                .getNbsMiddleRate(Optional.ofNullable(date).orElse(LocalDate.now()))
-                .map(ResponseEntity::ok);
+                .getNbsMiddleRate(Optional.ofNullable(date).orElse(LocalDate.now()));
     }
 }

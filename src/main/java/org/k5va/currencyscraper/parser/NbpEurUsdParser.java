@@ -2,21 +2,21 @@ package org.k5va.currencyscraper.parser;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import lombok.extern.slf4j.Slf4j;
-import org.k5va.currencyscraper.model.Currency;
 import org.k5va.currencyscraper.error.ParserException;
 import org.springframework.stereotype.Component;
 import org.springframework.util.Assert;
 
 import java.math.BigDecimal;
+import java.util.Map;
 
 @Component
 @Slf4j
-public class NbpEurUsdParser implements Parser<Currency> {
+public class NbpEurUsdParser implements Parser<Map<String, BigDecimal>> {
 
     private final ObjectMapper objectMapper = new ObjectMapper();
 
     @Override
-    public Currency parse(String currencyJson) {
+    public Map<String, BigDecimal> parse(String currencyJson) {
         log.debug("Parsing NBP currency rates {}", currencyJson);
 
         try {
@@ -38,7 +38,10 @@ public class NbpEurUsdParser implements Parser<Currency> {
             Assert.notNull(usdRate, "USD rate not found");
             Assert.notNull(eurRate, "EUR rate not found");
 
-            return new Currency(usdRate, eurRate);
+            return Map.of(
+                    "USD", usdRate,
+                    "EUR", eurRate
+            );
         } catch (Exception e) {
             throw new ParserException(e);
         }

@@ -1,7 +1,9 @@
 package org.k5va.currencyscraper.scraper;
 
 import lombok.extern.slf4j.Slf4j;
+import org.k5va.currencyscraper.entity.Currency;
 import org.k5va.currencyscraper.error.ScraperException;
+import org.k5va.currencyscraper.dto.CurrencyDto;
 import org.k5va.currencyscraper.parser.NbsMiddleRateParser;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;
@@ -9,14 +11,13 @@ import org.springframework.util.Assert;
 import org.springframework.web.reactive.function.client.WebClient;
 import reactor.core.publisher.Mono;
 
-import java.math.BigDecimal;
 import java.time.Duration;
 import java.time.LocalDate;
 import java.time.format.DateTimeFormatter;
 
 @Component
 @Slf4j
-public class NbsMiddleRateScraper implements Scraper<String> {
+public class NbsMiddleRateScraper implements Scraper<CurrencyDto> {
 
     public static final int TIMEOUT_SECONDS = 5;
 
@@ -37,12 +38,12 @@ public class NbsMiddleRateScraper implements Scraper<String> {
     }
 
     @Override
-    public Mono<String> scrape() {
+    public Mono<CurrencyDto> scrape() {
         return scrape(LocalDate.now());
     }
 
     @Override
-    public Mono<String> scrape(LocalDate date) {
+    public Mono<CurrencyDto> scrape(LocalDate date) {
         log.info("Scraping NBS currency middle rates on: {}", date);
 
         return webClient.get()
@@ -51,7 +52,7 @@ public class NbsMiddleRateScraper implements Scraper<String> {
                 .bodyToMono(String.class)
                 .map(parser::parse)
                 .log()
-                .map(BigDecimal::toPlainString)
+                .map(value -> new CurrencyDto(value, date, Currency.Type.NBS_MIDDLE_RATE.name()))
                 .timeout(Duration.ofSeconds(TIMEOUT_SECONDS))
                 .switchIfEmpty(Mono.error(new ScraperException("Empty response from NBS")))
                 .onErrorMap(Exception.class, ScraperException::new);

@@ -1,8 +1,12 @@
 spring:
   application.name: currencyscraper
+  data:
+    mongodb:
+      uri: mongodb://admin:123456@localhost:27017
+      database: currency
 
 server:
-  port: 8080
+  port: 8090
 
 logging.level.reactor.netty.http.client: DEBUG
 

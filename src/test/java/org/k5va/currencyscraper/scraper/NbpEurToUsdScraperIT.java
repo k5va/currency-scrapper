@@ -5,7 +5,9 @@ import okhttp3.mockwebserver.MockWebServer;
 import org.junit.jupiter.api.AfterAll;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
+import org.k5va.currencyscraper.entity.Currency;
 import org.k5va.currencyscraper.error.ScraperException;
+import org.k5va.currencyscraper.dto.CurrencyDto;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.test.context.DynamicPropertyRegistry;
@@ -14,7 +16,9 @@ import org.springframework.util.ResourceUtils;
 import reactor.test.StepVerifier;
 
 import java.io.IOException;
+import java.math.BigDecimal;
 import java.nio.file.Files;
+import java.time.LocalDate;
 
 @SpringBootTest
 class NbpEurToUsdScraperIT {
@@ -43,6 +47,7 @@ class NbpEurToUsdScraperIT {
     @Test
     void scrapeShouldReturnCorrectValue() throws IOException {
         // given
+        var currency = new CurrencyDto(new BigDecimal("1.08"), LocalDate.now(), Currency.Type.NBP_EUR_USD.name());
         var jsonCurrencyData = Files.readString(
                 ResourceUtils.getFile("classpath:data/nbp.json").toPath());
 
@@ -55,7 +60,7 @@ class NbpEurToUsdScraperIT {
 
         // then
         StepVerifier.create(result)
-                .expectNextMatches("1.08"::equals)
+                .expectNextMatches(currency::equals)
                 .verifyComplete();
     }
 
