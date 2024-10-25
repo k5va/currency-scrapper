@@ -1,11 +1,16 @@
 spring:
   application.name: currencyscraper
+  data:
+    mongodb:
+      uri: mongodb://admin:123456@localhost:27017
+      database: currency
 
 server:
-  port: 8080
+  port: 8090
 
 logging.level.reactor.netty.http.client: DEBUG
 
 app.currency:
   nbp.url: https://api.nbp.pl/api/exchangerates/tables/a?format=json
   nbs.url: https://moduli.erstebank.rs//aspx/kursna_lista/datum_slr.aspx
+  btc.url: https://api.coindesk.com/v1/bpi/currentprice/USD.json

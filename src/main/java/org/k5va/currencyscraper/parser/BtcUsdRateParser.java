@@ -12,23 +12,24 @@ import java.util.Optional;
 
 @Component
 @Slf4j
-public class NbsMiddleRateParser implements Parser<BigDecimal> {
+public class BtcUsdRateParser implements Parser<BigDecimal> {
 
     private final ObjectMapper objectMapper = new ObjectMapper();
 
     @Override
     public BigDecimal parse(String json) {
-        log.info("Parsing NBS currency rates {}", json);
+        log.info("Parsing BTC currency rates {}", json);
 
         try {
             Assert.hasText(json, "Currency json cannot be empty");
 
             return Optional.ofNullable(objectMapper.readTree(json))
-                    .map(node -> node.get("KursnaLista"))
-                    .map(node -> node.get("SrednjiKursEurNBS"))
+                    .map(node -> node.get("bpi"))
+                    .map(node -> node.get("USD"))
+                    .map(node -> node.get("rate_float"))
                     .map(JsonNode::asText)
                     .map(BigDecimal::new)
-                    .orElseThrow(() -> new ParserException("NBS middle rate not found"));
+                    .orElseThrow(() -> new ParserException("BTC rate not found"));
         } catch (Exception e) {
             throw new ParserException(e);
         }

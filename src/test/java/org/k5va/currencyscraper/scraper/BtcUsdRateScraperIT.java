@@ -5,9 +5,9 @@ import okhttp3.mockwebserver.MockWebServer;
 import org.junit.jupiter.api.AfterAll;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
+import org.k5va.currencyscraper.dto.CurrencyDto;
 import org.k5va.currencyscraper.entity.Currency;
 import org.k5va.currencyscraper.error.ScraperException;
-import org.k5va.currencyscraper.dto.CurrencyDto;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.test.context.DynamicPropertyRegistry;
@@ -21,16 +21,15 @@ import java.nio.file.Files;
 import java.time.LocalDate;
 
 @SpringBootTest
-class NbpEurToUsdScraperIT {
-
+class BtcUsdRateScraperIT {
     private static MockWebServer mockNbpServer;
 
     @Autowired
-    private NbpEurToUsdScraper scraper;
+    private BtcUsdRateScraper scraper;
 
     @DynamicPropertySource
     static void properties(DynamicPropertyRegistry r) {
-        r.add("app.currency.nbp.url", () -> mockNbpServer.url("/").toString());
+        r.add("app.currency.btc.url", () -> mockNbpServer.url("/").toString());
     }
 
     @BeforeAll
@@ -47,9 +46,11 @@ class NbpEurToUsdScraperIT {
     @Test
     void scrapeShouldReturnCorrectValue() throws IOException {
         // given
-        var currency = new CurrencyDto(new BigDecimal("1.08"), LocalDate.now(), Currency.Type.NBP_EUR_USD.name());
+        var currency = new CurrencyDto(new BigDecimal("67674.733"),
+                LocalDate.now(),
+                Currency.Type.BTC_USD.name());
         var jsonCurrencyData = Files.readString(
-                ResourceUtils.getFile("classpath:data/nbp.json").toPath());
+                ResourceUtils.getFile("classpath:data/btc_coindesk.json").toPath());
 
         mockNbpServer.enqueue(new MockResponse()
                 .setBody(jsonCurrencyData)
@@ -120,25 +121,21 @@ class NbpEurToUsdScraperIT {
     void scrapeShouldThrowOnCurrencyNotFound() {
         // given
         var jsonCurrencyData = """
-                [
-                  {
-                    "table": "A",
-                    "no": "204/A/NBP/2024",
-                    "effectiveDate": "2024-10-18",
-                    "rates": [
-                      {
-                        "currency": "bat (Tajlandia)",
-                        "code": "THB",
-                        "mid": 0.1198
-                      },
-                      {
-                        "currency": "SDR (MFW)",
-                        "code": "XDR",
-                        "mid": 5.2827
+                {
+                    "time": {
+                      "updated": "Oct 24, 2024 17:41:21 UTC",
+                      "updatedISO": "2024-10-24T17:41:21+00:00",
+                      "updateduk": "Oct 24, 2024 at 18:41 BST"
+                    },
+                    "disclaimer": "This data was produced from the CoinDesk Bitcoin Price Index (USD). Non-USD currency data converted using hourly conversion rate from openexchangerates.org",
+                    "bpi": {
+                      "USD": {
+                        "code": "USD",
+                        "rate": "67,674.733",
+                        "description": "United States Dollar"
                       }
-                    ]
+                    }
                   }
-                ]
                 """;
 
         mockNbpServer.enqueue(new MockResponse()
